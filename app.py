@@ -17,13 +17,23 @@ from utils import (
 )
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'anti-scam-cyber-secret-key-2026-secure')
+app.secret_key = os.environ.get('SECRET_KEY', 'anti-scam-cyber-secret-key-2026-secure')
+app.config['SECRET_KEY'] = app.secret_key
 app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/antiscam_db')
-app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+
+# Upload Folder Configuration (Use /tmp on Vercel or read-only environments)
+if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
+else:
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB Max
 
-# Ensure Uploads directory exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Ensure Uploads directory exists fail-safely
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+except Exception as e:
+    print(f"[Uploads Dir Warning] {e}")
 
 db.init_app(app)
 
