@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: anti-scam-complaint-management-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        value: anti-scam-cyber-secret-key-2026-secure
+      - key: MONGO_URI
+        value: mongodb+srv://hariaiworld2005_db_user:8U8pCzzvH6qOTzVs@cluster0.zlk4cei.mongodb.net/antiscam_db
+      - key: MONGO_DB_NAME
+        value: antiscam_db

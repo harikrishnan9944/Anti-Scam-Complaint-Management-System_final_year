@@ -3,4 +3,5 @@ pymongo
 dnspython
 mongomock
 python-dotenv
+gunicorn
 Werkzeug
