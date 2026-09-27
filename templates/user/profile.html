@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Account Profile</h1>
+    <p class="page-subtitle">View your profile details and update security settings.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="card-clean text-center">
+            <div class="stat-icon primary mx-auto mb-3" style="width: 64px; height: 64px;">
+                <i class="bi bi-person-fill fs-2"></i>
+            </div>
+            <h4 class="fw-bold mb-1">{{ user.name }}</h4>
+            <p class="small text-muted mb-2">{{ user.email }}</p>
+            <span class="badge bg-primary text-uppercase" style="letter-spacing: 0.05em;">{{ user.role }}</span>
+
+            <hr class="my-3">
+
+            <div class="text-start small text-secondary">
+                <div class="mb-2"><i class="bi bi-telephone me-2 text-muted"></i> <strong>Phone:</strong> {{ user.phone or 'Not provided' }}</div>
+                <div class="mb-2"><i class="bi bi-calendar3 me-2 text-muted"></i> <strong>Joined:</strong> {{ user.created_at.strftime('%Y-%m-%d') }}</div>
+                <div><i class="bi bi-shield-check me-2 text-muted"></i> <strong>Account Status:</strong> <span class="text-success fw-semibold">Active</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7 col-lg-8">
+        <div class="card-clean">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-key text-primary me-2"></i> Change Password</h3>
+            </div>
+
+            <form action="{{ url_for('profile') }}" method="POST">
+                <div class="mb-3">
+                    <label for="current_password" class="form-label">Current Password <span class="required">*</span></label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="new_password" class="form-label">New Password <span class="required">*</span></label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" minlength="6" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label">Confirm New Password <span class="required">*</span></label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" minlength="6" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary-navy">
+                    <i class="bi bi-check-lg me-1"></i> Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

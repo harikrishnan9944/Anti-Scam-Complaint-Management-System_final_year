@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}All Complaints Management{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">All Complaints Management</h1>
+    <p class="page-subtitle">Search, filter, and inspect registered scam incidents.</p>
+</div>
+
+<div class="card-clean mb-4">
+    <!-- Clean Filter Row -->
+    <form method="GET" action="{{ url_for('admin_complaints') }}" class="row g-2 mb-3 align-items-center">
+        <div class="col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" class="form-control border-start-0" placeholder="Search ID, title, user, phone, UPI..." value="{{ query or '' }}">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <select name="category" class="form-select form-select-sm">
+                <option value="">All Categories</option>
+                <option value="Online Shopping Fraud" {% if selected_category == 'Online Shopping Fraud' %}selected{% endif %}>Online Shopping</option>
+                <option value="Phishing / Fake Website" {% if selected_category == 'Phishing / Fake Website' %}selected{% endif %}>Phishing / Website</option>
+                <option value="Financial / UPI Fraud" {% if selected_category == 'Financial / UPI Fraud' %}selected{% endif %}>Financial / UPI</option>
+                <option value="Job / Investment Scam" {% if selected_category == 'Job / Investment Scam' %}selected{% endif %}>Job / Investment</option>
+                <option value="Social Media Impersonation" {% if selected_category == 'Social Media Impersonation' %}selected{% endif %}>Social Media</option>
+                <option value="Other" {% if selected_category == 'Other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>Pending</option>
+                <option value="UNDER_REVIEW" {% if selected_status == 'UNDER_REVIEW' %}selected{% endif %}>Under Review</option>
+                <option value="INVESTIGATING" {% if selected_status == 'INVESTIGATING' %}selected{% endif %}>Investigating</option>
+                <option value="RESOLVED" {% if selected_status == 'RESOLVED' %}selected{% endif %}>Resolved</option>
+                <option value="REJECTED" {% if selected_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="risk" class="form-select form-select-sm">
+                <option value="">All Risk Levels</option>
+                <option value="LOW" {% if selected_risk == 'LOW' %}selected{% endif %}>LOW Risk</option>
+                <option value="MEDIUM" {% if selected_risk == 'MEDIUM' %}selected{% endif %}>MEDIUM Risk</option>
+                <option value="HIGH" {% if selected_risk == 'HIGH' %}selected{% endif %}>HIGH Risk</option>
+                <option value="CRITICAL" {% if selected_risk == 'CRITICAL' %}selected{% endif %}>CRITICAL Risk</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary-navy w-100">Filter</button>
+            {% if query or selected_category or selected_status or selected_risk %}
+                <a href="{{ url_for('admin_complaints') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- Table -->
+    {% if complaints %}
+        <div class="table-responsive">
+            <table class="table table-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Category</th>
+                        <th>Reporter</th>
+                        <th>Amount</th>
+                        <th>Risk Assessment</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in complaints %}
+                        <tr>
+                            <td class="fw-bold font-monospace">{{ c.complaint_id }}</td>
+                            <td>{{ c.category }}</td>
+                            <td>
+                                <div>{{ c.user.name }}</div>
+                                <div class="small text-muted">{{ c.user.email }}</div>
+                            </td>
+                            <td class="fw-semibold">₹{{ "{:,.2f}".format(c.amount_lost) }}</td>
+                            <td>
+                                <span class="badge-risk {{ c.risk_level }}">
+                                    <i class="bi bi-shield-exclamation"></i> {{ c.risk_level }} ({{ c.risk_score }}/100)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-status {{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+                            </td>
+                            <td>{{ c.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('view_complaint', complaint_id=c.complaint_id) }}" class="btn btn-sm btn-outline-navy">
+                                    Manage
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3 class="empty-state-title">No complaints found</h3>
+            <p class="empty-state-text">No complaints match your active filter criteria.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}My Complaints{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">My Complaints</h1>
+        <p class="page-subtitle">Complete log of your reported fraud incidents and current statuses.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary-navy shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Report a Scam
+        </a>
+    </div>
+</div>
+
+<div class="card-clean mb-4">
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="Search by ID, Category, or keyword..." data-table-search="userComplaintsTable">
+            </div>
+        </div>
+        <div class="col-md-6 d-flex gap-2 justify-content-md-end">
+            <form method="GET" class="d-flex gap-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="UNDER_REVIEW" {% if selected_status == 'UNDER_REVIEW' %}selected{% endif %}>Under Review</option>
+                    <option value="INVESTIGATING" {% if selected_status == 'INVESTIGATING' %}selected{% endif %}>Investigating</option>
+                    <option value="RESOLVED" {% if selected_status == 'RESOLVED' %}selected{% endif %}>Resolved</option>
+                    <option value="REJECTED" {% if selected_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                </select>
+                {% if selected_status %}
+                    <a href="{{ url_for('my_complaints') }}" class="btn btn-sm btn-outline-secondary text-nowrap">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if complaints %}
+        <div class="table-responsive">
+            <table class="table table-custom align-middle" id="userComplaintsTable">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Category</th>
+                        <th>Amount Lost</th>
+                        <th>Risk Assessment</th>
+                        <th>Status</th>
+                        <th>Date Submitted</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in complaints %}
+                        <tr>
+                            <td class="fw-bold">{{ c.complaint_id }}</td>
+                            <td>{{ c.category }}</td>
+                            <td>
+                                {% if c.amount_lost > 0 %}
+                                    <span class="fw-semibold">₹{{ "{:,.2f}".format(c.amount_lost) }}</span>
+                                {% else %}
+                                    <span class="text-muted">₹0.00</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge-risk {{ c.risk_level }}">
+                                    <i class="bi bi-shield-exclamation"></i> {{ c.risk_level }} ({{ c.risk_score }}/100)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-status {{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+                            </td>
+                            <td>{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('view_complaint', complaint_id=c.complaint_id) }}" class="btn btn-sm btn-outline-navy">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <h3 class="empty-state-title">No complaints found</h3>
+            <p class="empty-state-text">You haven't submitted any complaints matching this criteria.</p>
+            <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary-navy">
+                <i class="bi bi-plus-lg me-1"></i> Submit New Complaint
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Complaint Submitted Successfully{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6 text-center">
+        <div class="card-clean shadow-sm border p-4 p-md-5">
+            
+            <div class="stat-icon success mx-auto mb-3" style="width: 64px; height: 64px;">
+                <i class="bi bi-check-lg fs-1"></i>
+            </div>
+
+            <h2 class="fw-bold mb-2 text-success">Complaint Submitted Successfully</h2>
+            <p class="text-muted mb-4">Your complaint has been recorded in the Anti-Scam Portal and evaluated by the preliminary risk assessment engine.</p>
+
+            <div class="bg-light p-4 rounded border text-start mb-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-semibold">Complaint Reference ID</div>
+                        <div class="fs-5 fw-bold text-dark">{{ complaint.complaint_id }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-semibold">Current Status</div>
+                        <div><span class="badge-status PENDING">PENDING</span></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-semibold">Risk Level</div>
+                        <div>
+                            <span class="badge-risk {{ complaint.risk_level }}">
+                                <i class="bi bi-shield-exclamation"></i> {{ complaint.risk_level }} ({{ complaint.risk_score }}/100)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-semibold">Submitted On</div>
+                        <div class="fw-semibold text-dark">{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('user_dashboard') }}" class="btn btn-outline-navy">
+                    <i class="bi bi-grid me-1"></i> Dashboard
+                </a>
+                <a href="{{ url_for('view_complaint', complaint_id=complaint.complaint_id) }}" class="btn btn-primary-navy px-4">
+                    <i class="bi bi-file-earmark-text me-1"></i> View Complaint Details
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

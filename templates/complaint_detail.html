@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Complaint {{ complaint.complaint_id }}{% endblock %}
+
+{% block content %}
+<!-- Top Header Bar -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="page-title mb-0">{{ complaint.complaint_id }}</h1>
+            <span class="badge-status {{ complaint.status }}">{{ complaint.status.replace('_', ' ') }}</span>
+            <span class="badge-risk {{ complaint.risk_level }}">
+                <i class="bi bi-shield-exclamation me-1"></i> {{ complaint.risk_level }} RISK ({{ complaint.risk_score }}/100)
+            </span>
+        </div>
+        <p class="page-subtitle">Submitted on {{ complaint.created_at.strftime('%B %d, %Y at %H:%M') }} by {{ complaint.user.name }}</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+        {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('admin_complaints') }}" class="btn btn-sm btn-outline-navy"><i class="bi bi-arrow-left me-1"></i> Back to All Complaints</a>
+        {% else %}
+            <a href="{{ url_for('my_complaints') }}" class="btn btn-sm btn-outline-navy"><i class="bi bi-arrow-left me-1"></i> Back to My Complaints</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Repeated Indicator Pattern Detection Alert Box -->
+{% if related_complaints %}
+<div class="pattern-alert">
+    <div class="pattern-alert-title">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <span>⚠ REPEATEDLY REPORTED INDICATOR DETECTED</span>
+    </div>
+    <div class="small mb-2">
+        One or more suspicious indicators in this complaint match <strong>{{ related_complaints|length }} other reported complaint(s)</strong> across the platform:
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="small fw-semibold">Related Incident Reports:</span>
+        {% for rel in related_complaints %}
+            {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('view_complaint', complaint_id=rel.complaint_id) }}" class="badge bg-dark text-white font-monospace text-decoration-none">
+                    {{ rel.complaint_id }} ({{ rel.status }})
+                </a>
+            {% else %}
+                <span class="badge bg-secondary font-monospace">{{ rel.complaint_id }}</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+    <!-- Left / Primary Column (Complaint Information & Risk Assessment) -->
+    <div class="col-lg-8">
+        
+        <!-- SECTION 1: Complaint Information -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-file-earmark-text text-primary me-2"></i> Complaint Information</h3>
+                <span class="badge bg-light text-dark border">{{ complaint.category }}</span>
+            </div>
+            
+            <h4 class="fs-5 fw-bold text-dark mb-2">{{ complaint.title }}</h4>
+            <p class="text-secondary" style="white-space: pre-line; line-height: 1.6;">{{ complaint.description }}</p>
+        </div>
+
+        <!-- SECTION 2: Incident Information -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-calendar-event text-primary me-2"></i> Incident Details</h3>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted text-uppercase fw-semibold">Incident Date</div>
+                    <div class="fw-semibold text-dark">{{ complaint.incident_date }}</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted text-uppercase fw-semibold">Incident Time</div>
+                    <div class="fw-semibold text-dark">{{ complaint.incident_time or 'N/A' }}</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted text-uppercase fw-semibold">Amount Lost</div>
+                    <div class="fw-bold fs-6 text-danger">₹{{ "{:,.2f}".format(complaint.amount_lost) }}</div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="small text-muted text-uppercase fw-semibold">Payment Method</div>
+                    <div class="fw-semibold text-dark">{{ complaint.payment_method or 'N/A' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Suspicious Information -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-person-x text-primary me-2"></i> Suspicious Information Reported</h3>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-borderless table-sm mb-0 align-middle">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted fw-semibold" style="width: 30%;">Phone Number</td>
+                            <td class="font-monospace fw-medium">{{ complaint.phone_number or 'Not provided' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Email Address</td>
+                            <td class="font-monospace fw-medium">{{ complaint.email or 'Not provided' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">UPI ID / VPA</td>
+                            <td class="font-monospace fw-medium text-primary">{{ complaint.upi_id or 'Not provided' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Website / URL</td>
+                            <td>
+                                {% if complaint.website_url %}
+                                    <a href="{{ complaint.website_url }}" target="_blank" rel="noopener noreferrer" class="text-break">{{ complaint.website_url }} <i class="bi bi-box-arrow-up-right small"></i></a>
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Social Media / Group</td>
+                            <td>{{ complaint.social_media_account or 'Not provided' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Evidence -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-paperclip text-primary me-2"></i> Evidence Attachment</h3>
+            </div>
+            
+            {% if complaint.evidence_filename %}
+                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-file-earmark-check fs-2 text-primary"></i>
+                        <div>
+                            <div class="fw-semibold text-dark">{{ complaint.evidence_original_name or complaint.evidence_filename }}</div>
+                            <div class="small text-muted">Attached supporting file</div>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('download_evidence', filename=complaint.evidence_filename) }}" class="btn btn-sm btn-outline-navy">
+                        <i class="bi bi-download me-1"></i> View / Download
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0 small">No evidence file uploaded with this report.</p>
+            {% endif %}
+
+            {% if complaint.additional_info %}
+                <div class="mt-3 pt-3 border-top">
+                    <div class="small text-muted fw-semibold text-uppercase mb-1">Additional Notes</div>
+                    <p class="small mb-0 text-secondary">{{ complaint.additional_info }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Complaint Timeline -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-clock-history text-primary me-2"></i> Complaint Timeline</h3>
+            </div>
+
+            <div class="timeline-stepper">
+                <div class="timeline-step {% if complaint.status in ['PENDING', 'UNDER_REVIEW', 'INVESTIGATING', 'RESOLVED', 'REJECTED'] %}completed{% endif %}">
+                    <div class="timeline-node"><i class="bi bi-check"></i></div>
+                    <div class="timeline-label">Submitted</div>
+                    <div class="timeline-date">{{ complaint.created_at.strftime('%b %d, %H:%M') }}</div>
+                </div>
+
+                <div class="timeline-step {% if complaint.status in ['UNDER_REVIEW', 'INVESTIGATING', 'RESOLVED'] %}completed{% elif complaint.status == 'PENDING' %}active{% endif %}">
+                    <div class="timeline-node">
+                        {% if complaint.status in ['UNDER_REVIEW', 'INVESTIGATING', 'RESOLVED'] %}<i class="bi bi-check"></i>{% else %}2{% endif %}
+                    </div>
+                    <div class="timeline-label">Under Review</div>
+                </div>
+
+                <div class="timeline-step {% if complaint.status in ['INVESTIGATING', 'RESOLVED'] %}completed{% elif complaint.status == 'UNDER_REVIEW' %}active{% endif %}">
+                    <div class="timeline-node">
+                        {% if complaint.status in ['INVESTIGATING', 'RESOLVED'] %}<i class="bi bi-check"></i>{% else %}3{% endif %}
+                    </div>
+                    <div class="timeline-label">Investigating</div>
+                </div>
+
+                <div class="timeline-step {% if complaint.status == 'RESOLVED' %}completed{% elif complaint.status == 'REJECTED' %}bg-danger text-white{% elif complaint.status == 'INVESTIGATING' %}active{% endif %}">
+                    <div class="timeline-node">
+                        {% if complaint.status == 'RESOLVED' %}<i class="bi bi-check"></i>{% elif complaint.status == 'REJECTED' %}<i class="bi bi-x"></i>{% else %}4{% endif %}
+                    </div>
+                    <div class="timeline-label">
+                        {% if complaint.status == 'REJECTED' %}Rejected{% else %}Resolved{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Logs -->
+            {% if complaint.history %}
+                <div class="border-top pt-3 mt-3">
+                    <h5 class="fs-6 fw-bold mb-2 text-dark">History & Log Remarks</h5>
+                    <div class="list-group list-group-flush">
+                        {% for h in complaint.history %}
+                            <div class="list-group-item px-0 py-2 border-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge-status {{ h.status }} me-2">{{ h.status.replace('_', ' ') }}</span>
+                                    <small class="text-muted">{{ h.updated_at.strftime('%Y-%m-%d %H:%M') }} by {{ h.updated_by_name }}</small>
+                                </div>
+                                {% if h.remarks %}
+                                    <p class="small text-secondary mb-0 mt-1 ps-1 border-start border-2 border-primary ms-1">{{ h.remarks }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Right Sidebar Column (Risk Analysis Component + Admin Controls) -->
+    <div class="col-lg-4">
+        
+        <!-- RISK ANALYSIS UI COMPONENT -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-cpu-fill text-primary me-2"></i> Preliminary Fraud Risk</h3>
+            </div>
+
+            <div class="risk-gauge-container">
+                <div class="risk-gauge-header">
+                    <span class="badge-risk {{ complaint.risk_level }}">
+                        <i class="bi bi-shield-exclamation"></i> {{ complaint.risk_level }} RISK
+                    </span>
+                    <div class="risk-score-large {% if complaint.risk_level == 'CRITICAL' %}text-danger{% elif complaint.risk_level == 'HIGH' %}text-warning{% elif complaint.risk_level == 'MEDIUM' %}text-primary{% else %}text-success{% endif %}">
+                        {{ complaint.risk_score }} <span class="fs-6 text-muted font-normal">/ 100</span>
+                    </div>
+                </div>
+
+                <div class="progress-risk">
+                    <div class="progress-bar-risk {% if complaint.risk_level == 'CRITICAL' %}bg-danger{% elif complaint.risk_level == 'HIGH' %}bg-warning{% elif complaint.risk_level == 'MEDIUM' %}bg-primary{% else %}bg-success{% endif %}" style="width: {{ complaint.risk_score }}%;"></div>
+                </div>
+
+                <div class="small fw-semibold text-dark mb-2">Evaluated Risk Reasons:</div>
+                <ul class="small text-secondary ps-3 mb-3">
+                    {% for reason in complaint.risk_reasons %}
+                        <li class="mb-1">{{ reason }}</li>
+                    {% else %}
+                        <li>Standard baseline assessment.</li>
+                    {% endfor %}
+                </ul>
+
+                <div class="p-2 bg-white rounded border small text-muted text-center" style="font-size: 0.75rem;">
+                    <i class="bi bi-info-circle me-1"></i> System-generated preliminary fraud risk assessment. This does not replace official investigation.
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN CONTROLS (Only visible to Admin) -->
+        {% if session.get('role') == 'admin' %}
+            <div class="card-clean mb-4 border-primary">
+                <div class="card-clean-header bg-light">
+                    <h3 class="card-clean-title text-primary"><i class="bi bi-pencil-square me-2"></i> Update Complaint Status</h3>
+                </div>
+
+                <form action="{{ url_for('update_complaint_status', complaint_id=complaint.complaint_id) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Investigation Status</label>
+                        <select name="status" id="status" class="form-select" required>
+                            <option value="PENDING" {% if complaint.status == 'PENDING' %}selected{% endif %}>PENDING</option>
+                            <option value="UNDER_REVIEW" {% if complaint.status == 'UNDER_REVIEW' %}selected{% endif %}>UNDER REVIEW</option>
+                            <option value="INVESTIGATING" {% if complaint.status == 'INVESTIGATING' %}selected{% endif %}>INVESTIGATING</option>
+                            <option value="RESOLVED" {% if complaint.status == 'RESOLVED' %}selected{% endif %}>RESOLVED</option>
+                            <option value="REJECTED" {% if complaint.status == 'REJECTED' %}selected{% endif %}>REJECTED</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="admin_remarks" class="form-label">Official Admin Remarks</label>
+                        <textarea name="admin_remarks" id="admin_remarks" rows="3" class="form-control" placeholder="Enter findings, actions taken, or blocking reasons...">{{ complaint.admin_remarks or '' }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-navy w-100">
+                        <i class="bi bi-check-lg me-1"></i> Update Complaint
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- User Information Card -->
+        <div class="card-clean mb-4">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-person text-primary me-2"></i> Reporter Details</h3>
+            </div>
+            <div class="small">
+                <div class="mb-2"><strong class="text-muted">Name:</strong> {{ complaint.user.name }}</div>
+                <div class="mb-2"><strong class="text-muted">Email:</strong> {{ complaint.user.email }}</div>
+                <div><strong class="text-muted">Phone:</strong> {{ complaint.user.phone or 'N/A' }}</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

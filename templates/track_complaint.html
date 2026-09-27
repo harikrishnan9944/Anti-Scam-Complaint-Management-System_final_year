@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Track Your Complaint{% endblock %}
+
+{% block public_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card-clean shadow-sm border p-4 text-center mb-4">
+                <div class="stat-icon primary mx-auto mb-2" style="width: 52px; height: 52px;">
+                    <i class="bi bi-search fs-3"></i>
+                </div>
+                <h2 class="fw-bold mb-1">Track Your Complaint</h2>
+                <p class="small text-muted mb-4">Enter your unique Complaint ID to check real-time status & timeline.</p>
+
+                <form method="GET" action="{{ url_for('track_complaint_public') }}" class="d-flex gap-2">
+                    <input type="text" name="complaint_id" class="form-control form-control-lg font-monospace text-uppercase" placeholder="e.g. SCAM-2026-00001" value="{{ searched_id or '' }}" required>
+                    <button type="submit" class="btn btn-primary-navy px-4">
+                        <i class="bi bi-search"></i> Track
+                    </button>
+                </form>
+            </div>
+
+            {% if searched %}
+                {% if complaint %}
+                    <!-- Clean Track Result Card -->
+                    <div class="card-clean border shadow-sm p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <div>
+                                <span class="small text-muted text-uppercase fw-semibold">Complaint ID</span>
+                                <h3 class="fw-bold text-dark mb-0">{{ complaint.complaint_id }}</h3>
+                            </div>
+                            <div>
+                                <span class="badge-status {{ complaint.status }} fs-6">{{ complaint.status.replace('_', ' ') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <div class="small text-muted text-uppercase fw-semibold">Scam Category</div>
+                                <div class="fw-semibold text-dark">{{ complaint.category }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="small text-muted text-uppercase fw-semibold">Risk Assessment</div>
+                                <div>
+                                    <span class="badge-risk {{ complaint.risk_level }}">
+                                        <i class="bi bi-shield-exclamation"></i> {{ complaint.risk_level }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="small text-muted text-uppercase fw-semibold">Submitted Date</div>
+                                <div class="fw-semibold text-dark">{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="small text-muted text-uppercase fw-semibold">Last Updated</div>
+                                <div class="fw-semibold text-dark">{{ complaint.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline for public tracker -->
+                        <h5 class="fs-6 fw-bold mb-3">Investigation Timeline</h5>
+                        <div class="timeline-stepper">
+                            <div class="timeline-step {% if complaint.status in ['PENDING', 'UNDER_REVIEW', 'INVESTIGATING', 'RESOLVED', 'REJECTED'] %}completed{% endif %}">
+                                <div class="timeline-node"><i class="bi bi-check"></i></div>
+                                <div class="timeline-label">Submitted</div>
+                            </div>
+
+                            <div class="timeline-step {% if complaint.status in ['UNDER_REVIEW', 'INVESTIGATING', 'RESOLVED'] %}completed{% elif complaint.status == 'PENDING' %}active{% endif %}">
+                                <div class="timeline-node">
+                                    {% if complaint.status in ['UNDER_REVIEW', 'INVESTIGATING', 'RESOLVED'] %}<i class="bi bi-check"></i>{% else %}2{% endif %}
+                                </div>
+                                <div class="timeline-label">Under Review</div>
+                            </div>
+
+                            <div class="timeline-step {% if complaint.status in ['INVESTIGATING', 'RESOLVED'] %}completed{% elif complaint.status == 'UNDER_REVIEW' %}active{% endif %}">
+                                <div class="timeline-node">
+                                    {% if complaint.status in ['INVESTIGATING', 'RESOLVED'] %}<i class="bi bi-check"></i>{% else %}3{% endif %}
+                                </div>
+                                <div class="timeline-label">Investigating</div>
+                            </div>
+
+                            <div class="timeline-step {% if complaint.status == 'RESOLVED' %}completed{% elif complaint.status == 'REJECTED' %}bg-danger text-white{% elif complaint.status == 'INVESTIGATING' %}active{% endif %}">
+                                <div class="timeline-node">
+                                    {% if complaint.status == 'RESOLVED' %}<i class="bi bi-check"></i>{% elif complaint.status == 'REJECTED' %}<i class="bi bi-x"></i>{% else %}4{% endif %}
+                                </div>
+                                <div class="timeline-label">{% if complaint.status == 'REJECTED' %}Rejected{% else %}Resolved{% endif %}</div>
+                            </div>
+                        </div>
+
+                        {% if complaint.admin_remarks %}
+                            <div class="p-3 bg-light rounded border mt-3">
+                                <div class="small fw-semibold text-muted text-uppercase">Official Remarks</div>
+                                <div class="small text-dark">{{ complaint.admin_remarks }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <!-- Not Found State -->
+                    <div class="card-clean border p-4 text-center">
+                        <i class="bi bi-exclamation-circle text-danger fs-1 mb-2"></i>
+                        <h4 class="fw-bold">No Complaint Found</h4>
+                        <p class="small text-muted mb-0">We couldn't find any complaint matching ID <code>{{ searched_id }}</code>. Please verify the ID and try again.</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Report a Scam Incident{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Report a Scam Incident</h1>
+    <p class="page-subtitle">Provide details regarding the fraudulent incident for automated preliminary risk assessment and investigation.</p>
+</div>
+
+<form action="{{ url_for('submit_complaint') }}" method="POST" enctype="multipart/form-data">
+    
+    <!-- SECTION 1: Complaint Information -->
+    <div class="form-section">
+        <div class="form-section-title">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>SECTION 1: Complaint Information</span>
+        </div>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Complaint Title <span class="required">*</span></label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="e.g., Unauthorized UPI Transfer via Fake QR Code" required>
+            <div class="form-text">Provide a concise headline summarizing what happened.</div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="category" class="form-label">Scam Category <span class="required">*</span></label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="" disabled selected>Select category...</option>
+                    <option value="Online Shopping Fraud">Online Shopping Fraud</option>
+                    <option value="Phishing / Fake Website">Phishing / Fake Website</option>
+                    <option value="Financial / UPI Fraud">Financial / UPI Fraud</option>
+                    <option value="Job / Investment Scam">Job / Investment Scam</option>
+                    <option value="Social Media Impersonation">Social Media Impersonation</option>
+                    <option value="Lottery / Prize Fraud">Lottery / Prize Fraud</option>
+                    <option value="Tech Support Scam">Tech Support Scam</option>
+                    <option value="Other">Other Cyber Scam</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-0">
+            <label for="description" class="form-label">Incident Description <span class="required">*</span></label>
+            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Describe step-by-step how you were contacted, what instructions were given, and how the scam occurred." required></textarea>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Incident Details -->
+    <div class="form-section">
+        <div class="form-section-title">
+            <i class="bi bi-calendar-event-fill"></i>
+            <span>SECTION 2: Incident Details</span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="incident_date" class="form-label">Incident Date <span class="required">*</span></label>
+                <input type="date" class="form-control" id="incident_date" name="incident_date" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="incident_time" class="form-label">Incident Time</label>
+                <input type="time" class="form-control" id="incident_time" name="incident_time">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="amount_lost" class="form-label">Amount Lost (₹ / USD) <span class="required">*</span></label>
+                <input type="number" step="0.01" min="0" class="form-control" id="amount_lost" name="amount_lost" placeholder="0.00" required>
+                <div class="form-text">Enter 0 if no financial loss occurred.</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="payment_method" class="form-label">Payment Method Used</label>
+                <select class="form-select" id="payment_method" name="payment_method">
+                    <option value="N/A">None / Not Applicable</option>
+                    <option value="UPI / QR Code">UPI / QR Code / VPA</option>
+                    <option value="Bank Transfer / IMPS">Bank Transfer / IMPS / NEFT / RTGS</option>
+                    <option value="Credit / Debit Card">Credit / Debit Card</option>
+                    <option value="Cryptocurrency">Cryptocurrency (BTC, USDT, etc.)</option>
+                    <option value="Gift Cards / Vouchers">Gift Cards / E-Vouchers</option>
+                    <option value="Cash Deposit">Cash Deposit</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Suspicious Information -->
+    <div class="form-section">
+        <div class="form-section-title">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>SECTION 3: Suspicious Information</span>
+        </div>
+
+        <p class="form-text mb-3 text-secondary">Fill in any known handles or addresses provided by the perpetrator. This aids pattern detection across complaints.</p>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="phone_number" class="form-label">Suspicious Phone Number</label>
+                <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="e.g. +91 9876543210">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Suspicious Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="e.g. scammer@fraud-domain.com">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="upi_id" class="form-label">Suspicious UPI ID / VPA</label>
+                <input type="text" class="form-control" id="upi_id" name="upi_id" placeholder="e.g. fastpay.olx@ybl">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="website_url" class="form-label">Suspicious Website / Domain URL</label>
+                <input type="url" class="form-control" id="website_url" name="website_url" placeholder="https://example-phishing-site.com">
+            </div>
+        </div>
+
+        <div class="mb-0">
+            <label for="social_media_account" class="form-label">Social Media Handle / Messaging Group</label>
+            <input type="text" class="form-control" id="social_media_account" name="social_media_account" placeholder="e.g. Telegram: @CryptoAdmin99, Instagram: @fake_deals">
+        </div>
+    </div>
+
+    <!-- SECTION 4: Evidence -->
+    <div class="form-section">
+        <div class="form-section-title">
+            <i class="bi bi-paperclip"></i>
+            <span>SECTION 4: Supporting Evidence</span>
+        </div>
+
+        <div class="mb-3">
+            <label for="evidence" class="form-label">Upload Screenshot / Document</label>
+            <input type="file" class="form-control" id="evidence" name="evidence" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx">
+            <div class="form-text">Allowed formats: PNG, JPG, PDF, DOC, DOCX (Max size: 10MB).</div>
+        </div>
+
+        <div class="mb-0">
+            <label for="additional_info" class="form-label">Additional Information / Notes</label>
+            <textarea class="form-control" id="additional_info" name="additional_info" rows="2" placeholder="Any extra context, transaction reference numbers, or cyber police station reports."></textarea>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="d-flex justify-content-end gap-2 mb-5">
+        <a href="{{ url_for('user_dashboard') }}" class="btn btn-outline-navy">Cancel</a>
+        <button type="submit" class="btn btn-primary-navy px-4">
+            <i class="bi bi-send-fill me-1"></i> Submit Complaint
+        </button>
+    </div>
+</form>
+{% endblock %}

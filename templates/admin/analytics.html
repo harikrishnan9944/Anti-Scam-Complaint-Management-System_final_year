@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Fraud Analytics & Threat Trends{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Fraud Analytics & Threat Trends</h1>
+    <p class="page-subtitle">Real-time empirical metrics calculated from registered complaint database.</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Complaints by Category -->
+    <div class="col-lg-6">
+        <div class="card-clean h-100">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-pie-chart-fill text-primary me-2"></i> 1. Complaints by Scam Category</h3>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="categoryAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Complaints by Status -->
+    <div class="col-lg-6">
+        <div class="card-clean h-100">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-bar-chart-steps text-primary me-2"></i> 2. Complaints by Lifecycle Status</h3>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="statusAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Risk Level Distribution -->
+    <div class="col-lg-6">
+        <div class="card-clean h-100">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-shield-exclamation text-primary me-2"></i> 3. Risk Level Distribution</h3>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="riskAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Monthly Complaint Trend -->
+    <div class="col-lg-6">
+        <div class="card-clean h-100">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-graph-up-arrow text-primary me-2"></i> 4. Incident Trend (Timeline)</h3>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="trendAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch("{{ url_for('api_analytics_data') }}")
+        .then(res => res.json())
+        .then(data => {
+            // Chart 1: Categories
+            new Chart(document.getElementById('categoryAnalyticsChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.categories.labels,
+                    datasets: [{
+                        data: data.categories.data,
+                        backgroundColor: ['#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { font: { family: 'Inter' } } } }
+                }
+            });
+
+            // Chart 2: Statuses
+            new Chart(document.getElementById('statusAnalyticsChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.statuses.labels,
+                    datasets: [{
+                        label: 'Complaints',
+                        data: data.statuses.data,
+                        backgroundColor: ['#075985', '#3730A3', '#6B21A8', '#166534', '#475569'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            // Chart 3: Risk Levels
+            new Chart(document.getElementById('riskAnalyticsChart'), {
+                type: 'pie',
+                data: {
+                    labels: data.risk_levels.labels,
+                    datasets: [{
+                        data: data.risk_levels.data,
+                        backgroundColor: ['#10B981', '#F59E0B', '#F97316', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { font: { family: 'Inter' } } } }
+                }
+            });
+
+            // Chart 4: Monthly Trend
+            new Chart(document.getElementById('trendAnalyticsChart'), {
+                type: 'line',
+                data: {
+                    labels: data.trend.labels,
+                    datasets: [{
+                        label: 'Incidents Reported',
+                        data: data.trend.data,
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        });
+});
+</script>
+{% endblock %}

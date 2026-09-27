@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-subtitle">Monitor and manage reported scam complaints across platform.</p>
+</div>
+
+<!-- Compact Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card p-3">
+            <div>
+                <div class="stat-number text-primary">{{ stats.total }}</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card p-3">
+            <div>
+                <div class="stat-number text-warning">{{ stats.pending }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card p-3">
+            <div>
+                <div class="stat-number text-info">{{ stats.under_review }}</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card p-3">
+            <div>
+                <div class="stat-number text-purple" style="color: #8B5CF6;">{{ stats.investigating }}</div>
+                <div class="stat-label">Investigating</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card p-3">
+            <div>
+                <div class="stat-number text-success">{{ stats.resolved }}</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card p-3">
+            <div>
+                <div class="stat-number text-danger">{{ stats.high_risk }}</div>
+                <div class="stat-label">High Risk</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2 Clean Charts -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card-clean h-100">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-pie-chart-fill text-primary me-2"></i> Complaints by Category</h3>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card-clean h-100">
+            <div class="card-clean-header">
+                <h3 class="card-clean-title"><i class="bi bi-bar-chart-fill text-primary me-2"></i> Complaint Status Distribution</h3>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Complaints Table -->
+<div class="card-clean">
+    <div class="card-clean-header">
+        <h3 class="card-clean-title">Recent Complaint Reports</h3>
+        <a href="{{ url_for('admin_complaints') }}" class="btn btn-sm btn-outline-navy">View All Complaints</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom align-middle">
+            <thead>
+                <tr>
+                    <th>Complaint ID</th>
+                    <th>Category</th>
+                    <th>Reporter</th>
+                    <th>Risk Assessment</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in recent_complaints %}
+                    <tr>
+                        <td class="fw-bold">{{ c.complaint_id }}</td>
+                        <td>{{ c.category }}</td>
+                        <td>{{ c.user.name }}</td>
+                        <td>
+                            <span class="badge-risk {{ c.risk_level }}">
+                                <i class="bi bi-shield-exclamation"></i> {{ c.risk_level }} ({{ c.risk_score }}/100)
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-status {{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+                        </td>
+                        <td>{{ c.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('view_complaint', complaint_id=c.complaint_id) }}" class="btn btn-sm btn-outline-navy">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No complaints recorded yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch analytics data dynamically from endpoint
+    fetch("{{ url_for('api_analytics_data') }}")
+        .then(response => response.json())
+        .then(data => {
+            // Category Donut Chart
+            const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctxCategory, {
+                type: 'doughnut',
+                data: {
+                    labels: data.categories.labels,
+                    datasets: [{
+                        data: data.categories.data,
+                        backgroundColor: ['#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } } }
+                    }
+                }
+            });
+
+            // Status Bar Chart
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'bar',
+                data: {
+                    labels: data.statuses.labels,
+                    datasets: [{
+                        label: 'Count',
+                        data: data.statuses.data,
+                        backgroundColor: ['#075985', '#3730A3', '#6B21A8', '#166534', '#475569'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0, font: { family: 'Inter' } } },
+                        x: { ticks: { font: { family: 'Inter' } } }
+                    }
+                }
+            });
+        });
+});
+</script>
+{% endblock %}

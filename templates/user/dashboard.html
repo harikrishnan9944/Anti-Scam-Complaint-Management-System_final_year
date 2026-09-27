@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Welcome back, {{ session.get('user_name', 'User') }}</h1>
+        <p class="page-subtitle">Manage and track your reported scam complaints.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary-navy shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Report a Scam
+        </a>
+    </div>
+</div>
+
+<!-- 4 Statistic Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-folder2-open"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ stats.total }}</div>
+                <div class="stat-label">Total Complaints</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ stats.pending }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon info">
+                <i class="bi bi-search-heart"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ stats.under_review }}</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ stats.resolved }}</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Complaints Section -->
+<div class="card-clean">
+    <div class="card-clean-header">
+        <h2 class="card-clean-title">My Recent Complaints</h2>
+        {% if recent_complaints %}
+            <a href="{{ url_for('my_complaints') }}" class="btn btn-sm btn-outline-navy">View All Complaints</a>
+        {% endif %}
+    </div>
+
+    {% if recent_complaints %}
+        <div class="table-responsive">
+            <table class="table table-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Category</th>
+                        <th>Risk Assessment</th>
+                        <th>Status</th>
+                        <th>Submitted Date</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in recent_complaints %}
+                        <tr>
+                            <td class="fw-bold">{{ c.complaint_id }}</td>
+                            <td>{{ c.category }}</td>
+                            <td>
+                                <span class="badge-risk {{ c.risk_level }}">
+                                    <i class="bi bi-shield-exclamation"></i> {{ c.risk_level }} ({{ c.risk_score }}/100)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-status {{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+                            </td>
+                            <td>{{ c.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('view_complaint', complaint_id=c.complaint_id) }}" class="btn btn-sm btn-outline-navy">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-folder-x"></i>
+            </div>
+            <h3 class="empty-state-title">No complaints yet</h3>
+            <p class="empty-state-text">With your first complaint, you can track its progress and threat analysis here.</p>
+            <a href="{{ url_for('submit_complaint') }}" class="btn btn-primary-navy">
+                <i class="bi bi-plus-lg me-1"></i> Report a Scam
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

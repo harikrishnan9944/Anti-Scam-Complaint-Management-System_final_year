@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}User Registry Management{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">User Registry Management</h1>
+    <p class="page-subtitle">View and manage registered user accounts across anti-scam portal.</p>
+</div>
+
+<div class="card-clean mb-4">
+    <div class="card-clean-header">
+        <h3 class="card-clean-title">Registered System Accounts ({{ users|length }})</h3>
+        <div class="w-25">
+            <input type="text" class="form-control form-control-sm" placeholder="Search user..." data-table-search="usersTable">
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom align-middle" id="usersTable">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email Address</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Complaints Submitted</th>
+                    <th>Joined Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                    <tr>
+                        <td class="font-monospace fw-bold">#{{ u.id }}</td>
+                        <td class="fw-semibold">{{ u.name }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.phone or 'N/A' }}</td>
+                        <td>
+                            {% if u.role == 'admin' %}
+                                <span class="badge bg-primary text-uppercase">Admin</span>
+                            {% else %}
+                                <span class="badge bg-secondary text-uppercase">User</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold text-center">{{ u.complaints|length }}</td>
+                        <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if u.status == 'active' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Suspended</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

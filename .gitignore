@@ -1,0 +1,24 @@
+# Environment variables
+.env
+
+# Python Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases
+*.db
+*.sqlite3
+
+# Uploaded Evidence files
+uploads/*
+!uploads/.gitkeep
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/

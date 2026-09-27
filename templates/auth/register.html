@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block public_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card-clean shadow-sm border p-4">
+                <div class="text-center mb-4">
+                    <div class="stat-icon primary mx-auto mb-2" style="width:52px; height:52px;">
+                        <i class="bi bi-person-plus-fill fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold mb-1">Create User Account</h4>
+                    <p class="small text-muted">Register to submit & track scam complaints</p>
+                </div>
+
+                <form action="{{ url_for('register') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address <span class="required">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 9876543210">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="password" class="form-label">Password <span class="required">*</span></label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="At least 6 characters" minlength="6" required>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="confirm_password" class="form-label">Confirm Password <span class="required">*</span></label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Repeat password" minlength="6" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-navy w-100 py-2 mb-3">
+                        <i class="bi bi-check-circle me-2"></i> Register Account
+                    </button>
+                </form>
+
+                <div class="text-center pt-2 border-top">
+                    <span class="small text-muted">Already registered? </span>
+                    <a href="{{ url_for('login') }}" class="small fw-semibold">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
