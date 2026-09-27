@@ -549,12 +549,18 @@ def page_not_found(e):
 def server_error(e):
     return "<h3>Something went wrong. Please try again.</h3>", 500
 
-# =========================================================================
-# INITIALIZATION & ENTRY POINT
-# =========================================================================
-with app.app_context():
-    db.create_all()
-    seed_initial_data(db)
+_initialized = False
+
+@app.before_request
+def initialize_database_once():
+    global _initialized
+    if not _initialized:
+        try:
+            db.create_all()
+            seed_initial_data(db)
+        except Exception as e:
+            print(f"[Init Warning] {e}")
+        _initialized = True
 
 if __name__ == '__main__':
     print("[Anti-Scam Portal] Starting local server at http://127.0.0.1:5000 ...")
