@@ -21,8 +21,8 @@ def get_db():
     client = None
     if mongo_uri:
         try:
-            client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=4000)
-            client.server_info()
+            client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=2500, connectTimeoutMS=2500)
+            client.admin.command('ping')
             print(f"[MongoDB] Connected via MONGO_URI to database '{db_name}'")
         except Exception as e:
             print(f"[MongoDB] Could not connect via MONGO_URI: {e}")
@@ -30,8 +30,8 @@ def get_db():
             
     if client is None:
         try:
-            client = pymongo.MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=1500)
-            client.server_info()
+            client = pymongo.MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=500, connectTimeoutMS=500)
+            client.admin.command('ping')
             print(f"[MongoDB] Connected to local MongoDB (localhost:27017) database '{db_name}'")
         except Exception:
             import mongomock
