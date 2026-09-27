@@ -30,13 +30,16 @@ def get_db():
             
     if client is None:
         try:
-            client = pymongo.MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=500, connectTimeoutMS=500)
+            client = pymongo.MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=300, connectTimeoutMS=300)
             client.admin.command('ping')
             print(f"[MongoDB] Connected to local MongoDB (localhost:27017) database '{db_name}'")
         except Exception:
-            import mongomock
-            print("[MongoDB] Local MongoDB daemon not detected. Using in-memory MongoMock database.")
-            client = mongomock.MongoClient()
+            client = None
+
+    if client is None:
+        import mongomock
+        print("[MongoDB] Using in-memory MongoMock database.")
+        client = mongomock.MongoClient()
 
     get_db._db = client[db_name]
     return get_db._db
