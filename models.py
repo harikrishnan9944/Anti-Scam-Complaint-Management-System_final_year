@@ -15,12 +15,15 @@ def get_db():
     if getattr(get_db, '_db', None) is not None:
         return get_db._db
     
+    mongo_uri = os.environ.get('MONGO_URI', '')
+    db_name = os.environ.get('MONGO_DB_NAME', 'antiscam_db')
+    
     client = None
-    if MONGO_URI:
+    if mongo_uri:
         try:
-            client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+            client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=4000)
             client.server_info()
-            print(f"[MongoDB] Connected via MONGO_URI to database '{DB_NAME}'")
+            print(f"[MongoDB] Connected via MONGO_URI to database '{db_name}'")
         except Exception as e:
             print(f"[MongoDB] Could not connect via MONGO_URI: {e}")
             client = None
@@ -29,13 +32,13 @@ def get_db():
         try:
             client = pymongo.MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=1500)
             client.server_info()
-            print(f"[MongoDB] Connected to local MongoDB (localhost:27017) database '{DB_NAME}'")
+            print(f"[MongoDB] Connected to local MongoDB (localhost:27017) database '{db_name}'")
         except Exception:
             import mongomock
             print("[MongoDB] Local MongoDB daemon not detected. Using in-memory MongoMock database.")
             client = mongomock.MongoClient()
 
-    get_db._db = client[DB_NAME]
+    get_db._db = client[db_name]
     return get_db._db
 
 def get_next_sequence(name):
