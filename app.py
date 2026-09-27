@@ -16,7 +16,7 @@ from utils import (
     get_related_complaints, seed_initial_data
 )
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'anti-scam-cyber-secret-key-2026-secure')
 app.config['SECRET_KEY'] = app.secret_key
 app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/antiscam_db')
