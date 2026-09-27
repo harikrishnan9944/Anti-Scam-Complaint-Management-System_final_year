@@ -12,6 +12,58 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     
+    <!-- Critical Dark Theme CSS Override -->
+    <style>
+      html, body {
+        background-color: #0B0F19 !important;
+        color: #F8FAFC !important;
+        margin: 0;
+        padding: 0;
+      }
+      .bg-white, .bg-light, section.bg-white, section.bg-light {
+        background-color: #0B0F19 !important;
+      }
+      .card-clean, .cyber-card-inner {
+        background-color: #111827 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+      .text-dark {
+        color: #FFFFFF !important;
+      }
+      .text-muted {
+        color: #94A3B8 !important;
+      }
+      .text-secondary {
+        color: #CBD5E1 !important;
+      }
+      .btn-primary-navy, a.btn-primary-navy, button.btn-primary-navy {
+        background: linear-gradient(135deg, #06B6D4 0%, #2563EB 100%) !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(6, 182, 212, 0.6) !important;
+        box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4) !important;
+        font-weight: 700 !important;
+      }
+      .btn-outline-navy, a.btn-outline-navy, button.btn-outline-navy {
+        background: rgba(17, 24, 39, 0.85) !important;
+        color: #38BDF8 !important;
+        border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+        font-weight: 700 !important;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%) !important;
+        border: none !important;
+        color: #FFFFFF !important;
+      }
+      .btn-outline-light {
+        color: #06B6D4 !important;
+        border-color: rgba(6, 182, 212, 0.4) !important;
+        background: rgba(6, 182, 212, 0.05) !important;
+      }
+      .navbar-dark {
+        background-color: #090D16 !important;
+      }
+    </style>
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
