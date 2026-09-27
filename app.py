@@ -555,12 +555,12 @@ _initialized = False
 def initialize_database_once():
     global _initialized
     if not _initialized:
+        _initialized = True
         try:
             db.create_all()
             seed_initial_data(db)
         except Exception as e:
-            print(f"[Init Warning] {e}")
-        _initialized = True
+            print(f"[Init Warning] Could not seed database: {e}")
 
 if __name__ == '__main__':
     print("[Anti-Scam Portal] Starting local server at http://127.0.0.1:5000 ...")
